@@ -20,24 +20,26 @@ def manage_connection(client, addr):
         client_pub_pem = client.recv(2048)
         client_pub = rsa.PublicKey.load_pkcs1(client_pub_pem)
 
-        #Réception du pseudonyme (chiffré avec la clé du serveur)
-        enc_nick = client.recv(1024)
-        nickname = rsa.decrypt(enc_nick, server_priv).decode('utf-8')
+        #Boucle pour obtenir un pseudonyme valide
+        while True:
+            #Réception du pseudonyme (chiffré avec la clé du serveur)
+            enc_nick = client.recv(1024)
+            nickname = rsa.decrypt(enc_nick, server_priv).decode('utf-8')
 
-        if nickname in nicknames:
-            client.send(rsa.encrypt("PSEUDO_PRIS".encode('utf-8'), client_pub))
-            enlever_client(client)
-            return
-        else:
-            nicknames.append(nickname)
-            clients[client] = (addr, nickname, client_pub)
-            print(f"Pseudonyme de {addr} : {nickname}")
-            diffusion(f"{nickname} a rejoint le chat !".encode('utf-8'))
-            client.send(rsa.encrypt("PSEUDO_OK".encode('utf-8'), client_pub))
+            if nickname in nicknames:
+                client.send(rsa.encrypt("PSEUDO_PRIS".encode('utf-8'), client_pub))
+            else:
+                nicknames.append(nickname)
+                clients[client] = (addr, nickname, client_pub)
+                print(f"Pseudonyme de {addr} : {nickname}")
+                client.send(rsa.encrypt("PSEUDO_OK".encode('utf-8'), client_pub))
+                diffusion(f"{nickname} a rejoint le chat !".encode('utf-8'))
+                break
+
     except Exception:
         enlever_client(client)
         return
-
+    
     #Boucle de réception des messages
     while True:
         try:
@@ -72,7 +74,7 @@ def enlever_client(client):
             nicknames.remove(nickname)
 
 # Configuration du serveur 
-host = "192.168.1.35"
+host = "0.0.0.0"
 port = 4455
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serveur.bind((host, port))
