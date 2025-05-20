@@ -2,7 +2,7 @@ import socket
 import threading
 import rsa  
 import tkinter as tk
-from tkinter import scrolledtext
+from tkinter import scrolledtext, PhotoImage
 
 #Connexion au serveur
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -106,8 +106,12 @@ interface.bind("<Escape>", lambda event: interface.quit()) #Pour quitter avec Ec
 connexionFrame = tk.Frame(interface, bg="#393e46", bd=2, relief=tk.RIDGE, padx=10, pady=10)
 connexionFrame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
+logo_img = PhotoImage(file="logo.png") 
+logoLabel = tk.Label(connexionFrame, image=logo_img, bg="#393e46")
+logoLabel.pack(pady=(10, 0))
+
 titreLabel = tk.Label(connexionFrame, text="CHATSEC", font=("Arial", 35, "bold"), fg="#00adb5", bg="#393e46")
-titreLabel.pack(pady=(20, 10))
+titreLabel.pack(pady=(10, 10))
 
 infoLabel = tk.Label(connexionFrame, text="Entrez votre pseudonyme :", font=("Arial", 12), bg="#393e46", fg="#eeeeee")
 infoLabel.pack(pady=5)
